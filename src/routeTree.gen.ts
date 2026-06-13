@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MyAppointmentsRouteImport } from './routes/my-appointments'
 import { Route as LookupRouteImport } from './routes/lookup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as BookRouteImport } from './routes/book'
@@ -20,7 +21,13 @@ import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminInstitutionsRouteImport } from './routes/admin.institutions'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointments'
+import { Route as AdminStaffProfileIdRouteImport } from './routes/admin.staff-profile.$id'
 
+const MyAppointmentsRoute = MyAppointmentsRouteImport.update({
+  id: '/my-appointments',
+  path: '/my-appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LookupRoute = LookupRouteImport.update({
   id: '/lookup',
   path: '/lookup',
@@ -76,6 +83,11 @@ const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
   path: '/appointments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminStaffProfileIdRoute = AdminStaffProfileIdRouteImport.update({
+  id: '/staff-profile/$id',
+  path: '/staff-profile/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -83,24 +95,28 @@ export interface FileRoutesByFullPath {
   '/book': typeof BookRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
+  '/my-appointments': typeof MyAppointmentsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/staff-profile/$id': typeof AdminStaffProfileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
+  '/my-appointments': typeof MyAppointmentsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/staff-profile/$id': typeof AdminStaffProfileIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -109,12 +125,14 @@ export interface FileRoutesById {
   '/book': typeof BookRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
+  '/my-appointments': typeof MyAppointmentsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/staff-profile/$id': typeof AdminStaffProfileIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -124,24 +142,28 @@ export interface FileRouteTypes {
     | '/book'
     | '/login'
     | '/lookup'
+    | '/my-appointments'
     | '/admin/appointments'
     | '/admin/dashboard'
     | '/admin/institutions'
     | '/admin/services'
     | '/admin/users'
     | '/admin/'
+    | '/admin/staff-profile/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/book'
     | '/login'
     | '/lookup'
+    | '/my-appointments'
     | '/admin/appointments'
     | '/admin/dashboard'
     | '/admin/institutions'
     | '/admin/services'
     | '/admin/users'
     | '/admin'
+    | '/admin/staff-profile/$id'
   id:
     | '__root__'
     | '/'
@@ -149,12 +171,14 @@ export interface FileRouteTypes {
     | '/book'
     | '/login'
     | '/lookup'
+    | '/my-appointments'
     | '/admin/appointments'
     | '/admin/dashboard'
     | '/admin/institutions'
     | '/admin/services'
     | '/admin/users'
     | '/admin/'
+    | '/admin/staff-profile/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -163,10 +187,18 @@ export interface RootRouteChildren {
   BookRoute: typeof BookRoute
   LoginRoute: typeof LoginRoute
   LookupRoute: typeof LookupRoute
+  MyAppointmentsRoute: typeof MyAppointmentsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/my-appointments': {
+      id: '/my-appointments'
+      path: '/my-appointments'
+      fullPath: '/my-appointments'
+      preLoaderRoute: typeof MyAppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lookup': {
       id: '/lookup'
       path: '/lookup'
@@ -244,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/staff-profile/$id': {
+      id: '/admin/staff-profile/$id'
+      path: '/staff-profile/$id'
+      fullPath: '/admin/staff-profile/$id'
+      preLoaderRoute: typeof AdminStaffProfileIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
@@ -254,6 +293,7 @@ interface AdminRouteChildren {
   AdminServicesRoute: typeof AdminServicesRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminStaffProfileIdRoute: typeof AdminStaffProfileIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
@@ -263,6 +303,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminServicesRoute: AdminServicesRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminStaffProfileIdRoute: AdminStaffProfileIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -273,6 +314,7 @@ const rootRouteChildren: RootRouteChildren = {
   BookRoute: BookRoute,
   LoginRoute: LoginRoute,
   LookupRoute: LookupRoute,
+  MyAppointmentsRoute: MyAppointmentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

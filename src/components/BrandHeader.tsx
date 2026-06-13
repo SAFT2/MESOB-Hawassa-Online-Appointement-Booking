@@ -23,7 +23,10 @@ export default function BrandHeader() {
         <nav className="flex items-center gap-2">
           <Link to="/" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Home</Link>
           <Link to="/book" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Book</Link>
-          <Link to="/lookup" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Lookup</Link>
+         <Link to="/lookup" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Lookup</Link>
+          {user && !isStaff && (
+            <Link to="/my-appointments" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">My Appointments</Link>
+          )}
 
           {!user && (
             <Link to="/login">
