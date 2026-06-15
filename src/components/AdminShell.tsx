@@ -4,11 +4,13 @@ import {
   Calendar,
   Briefcase,
   Building2,
+  MessageSquare,
   Users,
   LogOut,
   Menu,
   X,
 } from "lucide-react";
+import useChatUnread from "@/hooks/useChatUnread";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -30,6 +32,12 @@ const NAV: {
     to: "/admin/appointments",
     label: "Appointments",
     icon: Calendar,
+    roles: ["admin", "agent"],
+  },
+  {
+    to: "/admin/chats",
+    label: "Support Chats",
+    icon: MessageSquare,
     roles: ["admin", "agent"],
   },
   {
@@ -59,6 +67,7 @@ function NavLinks({
 }) {
   const { user } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const { count } = useChatUnread();
 
   return (
     <>
@@ -80,7 +89,14 @@ function NavLinks({
             )}
           >
             <Icon className="h-4 w-4" />
-            {n.label}
+            <div className="flex items-center gap-2">
+              {n.label}
+              {n.to === "/admin/chats" && count > 0 && (
+                <span className="ml-2 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-rose-600 px-2 text-xs font-medium text-white">
+                  {count}
+                </span>
+              )}
+            </div>
           </Link>
         );
       })}

@@ -89,9 +89,18 @@ export default function Appointments() {
 
   const updateStatus = async (appt: Appointment, status: Status) => {
     setUpdatingId(appt.id);
+    const updatePayload: any = { status };
+    // Record which agent marked this appointment as served
+    if (status === "served" && user?.id) {
+      updatePayload.served_by = user.id;
+    }
+    // If reverting back to pending, clear served_by
+    if (status === "pending") {
+      updatePayload.served_by = null;
+    }
     const { error } = await supabase
       .from("appointments")
-      .update({ status })
+      .update(updatePayload)
       .eq("id", appt.id);
     setUpdatingId(null);
     if (error) { toast.error(error.message); return; }

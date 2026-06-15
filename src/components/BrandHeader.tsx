@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { LogIn, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import CitizenChatWidget from "@/components/CitizenChatWidget";
 
 export default function BrandHeader() {
   const { user, logout } = useAuth();
@@ -23,7 +24,10 @@ export default function BrandHeader() {
         <nav className="flex items-center gap-2">
           <Link to="/" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Home</Link>
           <Link to="/book" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Book</Link>
-          <Link to="/lookup" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Lookup</Link>
+         <Link to="/lookup" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">Lookup</Link>
+          {user && !isStaff && (
+            <Link to="/my-appointments" className="hidden sm:inline-block px-3 py-1.5 text-sm font-semibold text-white/90 hover:text-white">My Appointments</Link>
+          )}
 
           {!user && (
             <Link to="/login">
@@ -56,6 +60,7 @@ export default function BrandHeader() {
           )}
         </nav>
       </div>
+      <CitizenChatWidget />
     </header>
   );
 }
