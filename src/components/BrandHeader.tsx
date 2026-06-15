@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { LogIn, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import CitizenChatWidget from "@/components/CitizenChatWidget";
 
 export default function BrandHeader() {
   const { user, logout } = useAuth();
@@ -59,6 +60,7 @@ export default function BrandHeader() {
           )}
         </nav>
       </div>
+      <CitizenChatWidget />
     </header>
   );
 }
