@@ -1,6 +1,7 @@
 {
   "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts", "eslint.config.js"],
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "jsx": "react-jsx",
     "module": "ESNext",
@@ -9,6 +10,7 @@
 
     /* Bundler mode */
     "moduleResolution": "Bundler",
+    "baseUrl": ".",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": false,
     "noEmit": true,
