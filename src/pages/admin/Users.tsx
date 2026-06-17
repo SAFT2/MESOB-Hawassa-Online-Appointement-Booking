@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { UserCog, Search, ShieldCheck, Building2, Loader2 } from "lucide-react";
+import { UserCog, Search, ShieldCheck, Building2, Loader2, Star } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,6 +23,8 @@ interface UserRow {
   role: Role;
   institution_id: string | null;
   institution_name: string | null;
+  avg_rating: number | null;
+  review_count: number;
 }
 
 interface Institution { id: string; name: string; }
@@ -156,6 +159,7 @@ export default function Users() {
                   <th className="px-4 py-3 text-left">User</th>
                   <th className="px-4 py-3 text-left">Role</th>
                   <th className="px-4 py-3 text-left">Institution</th>
+                  <th className="px-4 py-3 text-left">Rating</th>
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
@@ -163,12 +167,22 @@ export default function Users() {
                 {filtered.map((u) => (
                   <tr key={u.id} className="border-t transition-colors hover:bg-muted/30">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-foreground">
-                        {u.full_name || "(no name)"}
-                        {u.id === currentUser?.id && (
-                          <span className="ml-2 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">you</span>
-                        )}
-                      </p>
+                      {u.role === "agent" ? (
+                        <Link
+                          to="/admin/staff-profile/$id"
+                          params={{ id: u.id }}
+                          className="font-medium text-primary hover:underline"
+                        >
+                          {u.full_name || "(no name)"}
+                        </Link>
+                      ) : (
+                        <p className="font-medium text-foreground">
+                          {u.full_name || "(no name)"}
+                        </p>
+                      )}
+                      {u.id === currentUser?.id && (
+                        <span className="ml-1 rounded-full bg-primary/10 px-1.5 py-0.5 text-[10px] font-medium text-primary">you</span>
+                      )}
                       <p className="text-xs text-muted-foreground">{u.email ?? "—"}</p>
                     </td>
                     <td className="px-4 py-3">
@@ -181,6 +195,21 @@ export default function Users() {
                         ? (u.institution_name ?? <span className="text-destructive text-xs">⚠ Not assigned</span>)
                         : <span className="text-muted-foreground/40">—</span>}
                     </td>
+                    <td className="px-4 py-3">
+                      {u.role === "agent" ? (
+                        u.avg_rating != null ? (
+                          <div className="flex items-center gap-1">
+                            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+                            <span className="text-sm font-medium">{Number(u.avg_rating).toFixed(1)}</span>
+                            <span className="text-xs text-muted-foreground">({u.review_count})</span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">No reviews</span>
+                        )
+                      ) : (
+                        <span className="text-muted-foreground/40">—</span>
+                      )}
+                    </td>
                     <td className="px-4 py-3 text-right">
                       <Button size="sm" variant="outline" onClick={() => openEdit(u)}>
                         <UserCog className="mr-2 h-3 w-3" /> Edit
@@ -190,7 +219,7 @@ export default function Users() {
                 ))}
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={4} className="px-4 py-12 text-center text-muted-foreground">
+                    <td colSpan={5} className="px-4 py-12 text-center text-muted-foreground">
                       {search ? `No users matching "${search}".` : "No users found."}
                     </td>
                   </tr>

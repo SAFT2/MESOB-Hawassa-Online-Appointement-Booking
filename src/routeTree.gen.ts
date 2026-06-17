@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as MyAppointmentsRouteImport } from './routes/my-appointments'
 import { Route as LookupRouteImport } from './routes/lookup'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -17,11 +18,19 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSupportChatsRouteImport } from './routes/admin.support-chats'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminInstitutionsRouteImport } from './routes/admin.institutions'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointments'
+import { Route as AdminAnalyticsRouteImport } from './routes/admin.analytics'
+import { Route as AdminStaffProfileIdRouteImport } from './routes/admin.staff-profile.$id'
 
+const MyAppointmentsRoute = MyAppointmentsRouteImport.update({
+  id: '/my-appointments',
+  path: '/my-appointments',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LookupRoute = LookupRouteImport.update({
   id: '/lookup',
   path: '/lookup',
@@ -62,6 +71,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSupportChatsRoute = AdminSupportChatsRouteImport.update({
+  id: '/support-chats',
+  path: '/support-chats',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminServicesRoute = AdminServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -82,6 +96,16 @@ const AdminAppointmentsRoute = AdminAppointmentsRouteImport.update({
   path: '/appointments',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAnalyticsRoute = AdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminStaffProfileIdRoute = AdminStaffProfileIdRouteImport.update({
+  id: '/staff-profile/$id',
+  path: '/staff-profile/$id',
+  getParentRoute: () => AdminRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -90,12 +114,16 @@ export interface FileRoutesByFullPath {
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
+  '/my-appointments': typeof MyAppointmentsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/support-chats': typeof AdminSupportChatsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/staff-profile/$id': typeof AdminStaffProfileIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -103,12 +131,16 @@ export interface FileRoutesByTo {
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
+  '/my-appointments': typeof MyAppointmentsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/support-chats': typeof AdminSupportChatsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
+  '/admin/staff-profile/$id': typeof AdminStaffProfileIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -118,12 +150,16 @@ export interface FileRoutesById {
   '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
+  '/my-appointments': typeof MyAppointmentsRoute
+  '/admin/analytics': typeof AdminAnalyticsRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/support-chats': typeof AdminSupportChatsRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
+  '/admin/staff-profile/$id': typeof AdminStaffProfileIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -134,12 +170,16 @@ export interface FileRouteTypes {
     | '/history'
     | '/login'
     | '/lookup'
+    | '/my-appointments'
+    | '/admin/analytics'
     | '/admin/appointments'
     | '/admin/dashboard'
     | '/admin/institutions'
     | '/admin/services'
+    | '/admin/support-chats'
     | '/admin/users'
     | '/admin/'
+    | '/admin/staff-profile/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -147,12 +187,16 @@ export interface FileRouteTypes {
     | '/history'
     | '/login'
     | '/lookup'
+    | '/my-appointments'
+    | '/admin/analytics'
     | '/admin/appointments'
     | '/admin/dashboard'
     | '/admin/institutions'
     | '/admin/services'
+    | '/admin/support-chats'
     | '/admin/users'
     | '/admin'
+    | '/admin/staff-profile/$id'
   id:
     | '__root__'
     | '/'
@@ -161,12 +205,16 @@ export interface FileRouteTypes {
     | '/history'
     | '/login'
     | '/lookup'
+    | '/my-appointments'
+    | '/admin/analytics'
     | '/admin/appointments'
     | '/admin/dashboard'
     | '/admin/institutions'
     | '/admin/services'
+    | '/admin/support-chats'
     | '/admin/users'
     | '/admin/'
+    | '/admin/staff-profile/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,10 +224,18 @@ export interface RootRouteChildren {
   HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
   LookupRoute: typeof LookupRoute
+  MyAppointmentsRoute: typeof MyAppointmentsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/my-appointments': {
+      id: '/my-appointments'
+      path: '/my-appointments'
+      fullPath: '/my-appointments'
+      preLoaderRoute: typeof MyAppointmentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lookup': {
       id: '/lookup'
       path: '/lookup'
@@ -236,6 +292,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/support-chats': {
+      id: '/admin/support-chats'
+      path: '/support-chats'
+      fullPath: '/admin/support-chats'
+      preLoaderRoute: typeof AdminSupportChatsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/services': {
       id: '/admin/services'
       path: '/services'
@@ -264,25 +327,45 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAppointmentsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/analytics': {
+      id: '/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AdminAnalyticsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/staff-profile/$id': {
+      id: '/admin/staff-profile/$id'
+      path: '/staff-profile/$id'
+      fullPath: '/admin/staff-profile/$id'
+      preLoaderRoute: typeof AdminStaffProfileIdRouteImport
+      parentRoute: typeof AdminRoute
+    }
   }
 }
 
 interface AdminRouteChildren {
+  AdminAnalyticsRoute: typeof AdminAnalyticsRoute
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
   AdminInstitutionsRoute: typeof AdminInstitutionsRoute
   AdminServicesRoute: typeof AdminServicesRoute
+  AdminSupportChatsRoute: typeof AdminSupportChatsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminStaffProfileIdRoute: typeof AdminStaffProfileIdRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAnalyticsRoute: AdminAnalyticsRoute,
   AdminAppointmentsRoute: AdminAppointmentsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
   AdminInstitutionsRoute: AdminInstitutionsRoute,
   AdminServicesRoute: AdminServicesRoute,
+  AdminSupportChatsRoute: AdminSupportChatsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminStaffProfileIdRoute: AdminStaffProfileIdRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
@@ -294,6 +377,7 @@ const rootRouteChildren: RootRouteChildren = {
   HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
   LookupRoute: LookupRoute,
+  MyAppointmentsRoute: MyAppointmentsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
