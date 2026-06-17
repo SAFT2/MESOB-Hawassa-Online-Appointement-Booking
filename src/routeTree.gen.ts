@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as MyAppointmentsRouteImport } from './routes/my-appointments'
 import { Route as LookupRouteImport } from './routes/lookup'
 import { Route as LoginRouteImport } from './routes/login'
+import { Route as HistoryRouteImport } from './routes/history'
 import { Route as BookRouteImport } from './routes/book'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -38,6 +39,11 @@ const LookupRoute = LookupRouteImport.update({
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookRoute = BookRouteImport.update({
@@ -105,6 +111,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/book': typeof BookRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
   '/my-appointments': typeof MyAppointmentsRoute
@@ -121,6 +128,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/book': typeof BookRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
   '/my-appointments': typeof MyAppointmentsRoute
@@ -139,6 +147,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/book': typeof BookRoute
+  '/history': typeof HistoryRoute
   '/login': typeof LoginRoute
   '/lookup': typeof LookupRoute
   '/my-appointments': typeof MyAppointmentsRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/book'
+    | '/history'
     | '/login'
     | '/lookup'
     | '/my-appointments'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/book'
+    | '/history'
     | '/login'
     | '/lookup'
     | '/my-appointments'
@@ -191,6 +202,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/book'
+    | '/history'
     | '/login'
     | '/lookup'
     | '/my-appointments'
@@ -209,6 +221,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   BookRoute: typeof BookRoute
+  HistoryRoute: typeof HistoryRoute
   LoginRoute: typeof LoginRoute
   LookupRoute: typeof LookupRoute
   MyAppointmentsRoute: typeof MyAppointmentsRoute
@@ -235,6 +248,13 @@ declare module '@tanstack/react-router' {
       path: '/login'
       fullPath: '/login'
       preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book': {
@@ -354,6 +374,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   BookRoute: BookRoute,
+  HistoryRoute: HistoryRoute,
   LoginRoute: LoginRoute,
   LookupRoute: LookupRoute,
   MyAppointmentsRoute: MyAppointmentsRoute,
