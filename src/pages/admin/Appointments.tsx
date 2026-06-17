@@ -104,13 +104,16 @@ export default function Appointments() {
   const svcName = (id: string) =>
     services.find((s) => s.id === id)?.name ?? "—";
 
-  // Agents only see their institution's services; filtering already handled by RLS
-  const filteredServices = useMemo(
-    () => instFilter === "all"
+  // Agents only see their own institution's services in the dropdown.
+  // Admins see all, or the institution they picked in the filter above.
+  const filteredServices = useMemo(() => {
+    if (isAgent) {
+      return services.filter((s) => s.institution_id === user?.institution_id);
+    }
+    return instFilter === "all"
       ? services
-      : services.filter((s) => s.institution_id === instFilter),
-    [services, instFilter]
-  );
+      : services.filter((s) => s.institution_id === instFilter);
+  }, [services, instFilter, isAgent, user?.institution_id]);
 
   const visible = useMemo(() => {
     const q = search.toLowerCase();
