@@ -4,6 +4,9 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
+// Cast supabase to any to allow access to chat tables not in auto-generated types
+const supabaseClient = supabase as any;
+
 const ISSUE_TYPES = [
   { value: "general", label: "General issue" },
   { value: "booking", label: "Booking problem" },
@@ -54,14 +57,13 @@ export default function CitizenChatWidget() {
   const visible = user?.role === "citizen";
 
   useEffect(() => {
-    if (!visible) return;
-    if (!user) return;
+    if (!visible || !user) return;
     // load or create conversation for this user
     async function loadConv() {
-      const { data } = await supabase
+      const { data } = await supabaseClient
         .from("chat_conversations")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", user!.id)
         .maybeSingle();
       if (data) {
         setConversation(data as any);
@@ -72,10 +74,10 @@ export default function CitizenChatWidget() {
 
   useEffect(() => {
     if (!conversation) return;
-    let channel = supabase.channel(`public:chat_messages:conversation=${conversation.id}`);
+    let channel = supabaseClient.channel(`public:chat_messages:conversation=${conversation.id}`);
 
     async function loadMessages() {
-      const { data } = await supabase
+      const { data } = await supabaseClient
         .from("chat_messages")
         .select("*")
         .eq("conversation_id", conversation.id)
@@ -86,9 +88,9 @@ export default function CitizenChatWidget() {
 
     loadMessages();
 
-    channel = supabase
+    channel = supabaseClient
       .channel(`public:chat_messages:conversation=${conversation.id}`)
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${conversation.id}` }, (payload) => {
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "chat_messages", filter: `conversation_id=eq.${conversation.id}` }, (payload: any) => {
         setMessages((s) => [...s, payload.new as any]);
         setTimeout(() => listRef.current?.scrollTo({ top: 99999 }), 50);
       })
@@ -96,7 +98,7 @@ export default function CitizenChatWidget() {
 
     return () => {
       try {
-        supabase.removeChannel(channel);
+        supabaseClient.removeChannel(channel);
       } catch (e) {}
     };
   }, [conversation]);
@@ -106,7 +108,7 @@ export default function CitizenChatWidget() {
     let convId = conversation?.id;
 
     if (!convId) {
-      const { data } = await supabase
+      const { data } = await supabaseClient
         .from("chat_conversations")
         .insert({ user_id: user!.id, issue_type: issueType, language })
         .select("*")
@@ -117,7 +119,7 @@ export default function CitizenChatWidget() {
 
     if (!convId) return;
 
-    await supabase.from("chat_messages").insert({
+    await supabaseClient.from("chat_messages").insert({
       conversation_id: convId,
       sender: "citizen",
       sender_id: user!.id,
