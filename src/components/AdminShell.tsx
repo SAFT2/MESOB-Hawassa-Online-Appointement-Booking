@@ -8,6 +8,8 @@ import {
   LogOut,
   Menu,
   X,
+  Star,
+  MessageCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/context/AuthContext";
@@ -48,6 +50,18 @@ const NAV: {
     to: "/admin/users",
     label: "Users",
     icon: Users,
+    roles: ["admin"],
+  },
+  {
+    to: "/admin/feedback",
+    label: "Feedback",
+    icon: Star,
+    roles: ["admin", "agent"],
+  },
+  {
+    to: "/admin/support",
+    label: "Support",
+    icon: MessageCircle,
     roles: ["admin"],
   },
 ];

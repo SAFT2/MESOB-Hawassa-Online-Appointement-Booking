@@ -15,6 +15,8 @@ import { AuthProvider } from "@/context/AuthContext";
 import { ThemeProvider } from "@/context/ThemeContext";
 import { LanguageProvider } from "@/context/LanguageContext";
 import { Toaster } from "@/components/ui/sonner";
+import SupportChatWidget from "@/components/SupportChatWidget";
+import FeedbackPopup from "@/components/FeedbackPopup";
 
 function NotFoundComponent() {
   return (
@@ -141,9 +143,10 @@ function RootComponent() {
       <ThemeProvider>
         <LanguageProvider>
           <AuthProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
             <Toaster richColors position="top-right" />
+            <SupportChatWidget />
+            <FeedbackPopup />
           </AuthProvider>
         </LanguageProvider>
       </ThemeProvider>

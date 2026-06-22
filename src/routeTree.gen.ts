@@ -17,8 +17,10 @@ import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminServicesRouteImport } from './routes/admin.services'
 import { Route as AdminInstitutionsRouteImport } from './routes/admin.institutions'
+import { Route as AdminFeedbackRouteImport } from './routes/admin.feedback'
 import { Route as AdminDashboardRouteImport } from './routes/admin.dashboard'
 import { Route as AdminAppointmentsRouteImport } from './routes/admin.appointments'
 
@@ -62,6 +64,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
   path: '/users',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminServicesRoute = AdminServicesRouteImport.update({
   id: '/services',
   path: '/services',
@@ -70,6 +77,11 @@ const AdminServicesRoute = AdminServicesRouteImport.update({
 const AdminInstitutionsRoute = AdminInstitutionsRouteImport.update({
   id: '/institutions',
   path: '/institutions',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminFeedbackRoute = AdminFeedbackRouteImport.update({
+  id: '/feedback',
+  path: '/feedback',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminDashboardRoute = AdminDashboardRouteImport.update({
@@ -92,8 +104,10 @@ export interface FileRoutesByFullPath {
   '/lookup': typeof LookupRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -105,8 +119,10 @@ export interface FileRoutesByTo {
   '/lookup': typeof LookupRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -120,8 +136,10 @@ export interface FileRoutesById {
   '/lookup': typeof LookupRoute
   '/admin/appointments': typeof AdminAppointmentsRoute
   '/admin/dashboard': typeof AdminDashboardRoute
+  '/admin/feedback': typeof AdminFeedbackRoute
   '/admin/institutions': typeof AdminInstitutionsRoute
   '/admin/services': typeof AdminServicesRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/users': typeof AdminUsersRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -136,8 +154,10 @@ export interface FileRouteTypes {
     | '/lookup'
     | '/admin/appointments'
     | '/admin/dashboard'
+    | '/admin/feedback'
     | '/admin/institutions'
     | '/admin/services'
+    | '/admin/support'
     | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -149,8 +169,10 @@ export interface FileRouteTypes {
     | '/lookup'
     | '/admin/appointments'
     | '/admin/dashboard'
+    | '/admin/feedback'
     | '/admin/institutions'
     | '/admin/services'
+    | '/admin/support'
     | '/admin/users'
     | '/admin'
   id:
@@ -163,8 +185,10 @@ export interface FileRouteTypes {
     | '/lookup'
     | '/admin/appointments'
     | '/admin/dashboard'
+    | '/admin/feedback'
     | '/admin/institutions'
     | '/admin/services'
+    | '/admin/support'
     | '/admin/users'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -236,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminUsersRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/services': {
       id: '/admin/services'
       path: '/services'
@@ -248,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/institutions'
       fullPath: '/admin/institutions'
       preLoaderRoute: typeof AdminInstitutionsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/feedback': {
+      id: '/admin/feedback'
+      path: '/feedback'
+      fullPath: '/admin/feedback'
+      preLoaderRoute: typeof AdminFeedbackRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/dashboard': {
@@ -270,8 +308,10 @@ declare module '@tanstack/react-router' {
 interface AdminRouteChildren {
   AdminAppointmentsRoute: typeof AdminAppointmentsRoute
   AdminDashboardRoute: typeof AdminDashboardRoute
+  AdminFeedbackRoute: typeof AdminFeedbackRoute
   AdminInstitutionsRoute: typeof AdminInstitutionsRoute
   AdminServicesRoute: typeof AdminServicesRoute
+  AdminSupportRoute: typeof AdminSupportRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -279,8 +319,10 @@ interface AdminRouteChildren {
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAppointmentsRoute: AdminAppointmentsRoute,
   AdminDashboardRoute: AdminDashboardRoute,
+  AdminFeedbackRoute: AdminFeedbackRoute,
   AdminInstitutionsRoute: AdminInstitutionsRoute,
   AdminServicesRoute: AdminServicesRoute,
+  AdminSupportRoute: AdminSupportRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
