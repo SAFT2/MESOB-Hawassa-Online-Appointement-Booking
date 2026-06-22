@@ -19,6 +19,7 @@ interface Message {
   is_support: boolean;
   created_at: string;
   sender_id: string;
+  chat_id: string;
 }
 
 interface Chat {
@@ -41,9 +42,12 @@ function formatTime(iso: string) {
 }
 
 export default function SupportChatWidget() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { lang } = useLanguage();
   const t = (en: string, am: string) => lang === "am" ? am : en;
+
+  // Hide for admin/agent — they use the Support panel in sidebar
+  const isStaff = user?.role === "admin" || user?.role === "agent";
 
   const [step, setStep] = useState<Step>("closed");
   const [issue, setIssue] = useState<ChatIssue>("booking_problem");
@@ -56,9 +60,9 @@ export default function SupportChatWidget() {
   const [unread, setUnread] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Load existing open chat for this user
+  // Load existing open chat for logged-in citizens
   useEffect(() => {
-    if (!user || step !== "closed") return;
+    if (!user || isStaff || step !== "closed") return;
     supabase
       .from("support_chats")
       .select("*")
@@ -72,12 +76,11 @@ export default function SupportChatWidget() {
           setUnread(1);
         }
       });
-  }, [user]);
+  }, [user, isStaff]);
 
-  // Subscribe to messages when chat is open
+  // Subscribe to messages when chat is active
   useEffect(() => {
     if (!chat) return;
-    // Load existing messages
     supabase
       .from("support_messages")
       .select("*")
@@ -85,7 +88,6 @@ export default function SupportChatWidget() {
       .order("created_at")
       .then(({ data }) => setMessages((data ?? []) as Message[]));
 
-    // Subscribe to new messages
     const channel = supabase
       .channel(`chat_${chat.id}`)
       .on("postgres_changes", {
@@ -107,8 +109,14 @@ export default function SupportChatWidget() {
   }, [messages]);
 
   const startChat = async () => {
-    if (!user) { toast.error(t("Please sign in to start a chat.", "ለመወያየት ይግቡ።")); return; }
-    if (!subject.trim()) { toast.error(t("Please describe your issue briefly.", "ችግርዎን በጭሩ ያስረዱ።")); return; }
+    if (!user) {
+      toast.error(t("Please sign in to start a chat.", "ለመወያየት ይግቡ።"));
+      return;
+    }
+    if (!subject.trim()) {
+      toast.error(t("Please describe your issue.", "ችግርዎን ያስረዱ።"));
+      return;
+    }
     setStarting(true);
     const { data, error } = await supabase
       .from("support_chats")
@@ -119,7 +127,6 @@ export default function SupportChatWidget() {
     if (error) { toast.error(error.message); return; }
     setChat(data as Chat);
     setStep("chat");
-    // Send opening message
     await supabase.from("support_messages").insert({
       chat_id: data.id,
       sender_id: user.id,
@@ -145,8 +152,11 @@ export default function SupportChatWidget() {
 
   const openChat = () => {
     setUnread(0);
-    if (chat) { setStep("chat"); } else { setStep("new"); }
+    setStep(chat ? "chat" : "new");
   };
+
+  // Don't render for staff at all — they use the admin Support panel
+  if (authLoading || isStaff) return null;
 
   const isResolved = chat?.status === "resolved" || chat?.status === "closed";
 
@@ -158,7 +168,7 @@ export default function SupportChatWidget() {
           {/* Header */}
           <div className="flex items-center justify-between bg-primary px-4 py-3 text-white">
             <div className="flex items-center gap-2">
-              {step === "chat" && chat && (
+              {step === "chat" && (
                 <button onClick={() => setStep("new")} className="mr-1 opacity-70 hover:opacity-100">
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -177,8 +187,10 @@ export default function SupportChatWidget() {
           {step === "new" && (
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               <p className="text-sm text-muted-foreground">
-                {t("Tell us what you need help with and we'll get back to you shortly.",
-                   "ምን እርዳታ እንደሚፈልጉ ያሳውቁን፣ ብዙም ሳይቆይ እንደርሰዎታለን።")}
+                {t(
+                  "Tell us what you need help with and we'll get back to you shortly.",
+                  "ምን እርዳታ እንደሚፈልጉ ያሳውቁን፣ ብዙም ሳይቆይ እንደርሰዎታለን።"
+                )}
               </p>
               <div>
                 <Label className="text-xs">{t("Issue type", "የችግር ዓይነት")}</Label>
@@ -198,13 +210,25 @@ export default function SupportChatWidget() {
                 <Textarea
                   className="mt-1 resize-none text-sm"
                   rows={3}
-                  placeholder={t("e.g. I can't book my appointment…", "ለምሳሌ፡ ቀጠሮ መያዝ አልቻልሁም…")}
+                  placeholder={t(
+                    "e.g. I can't book my appointment…",
+                    "ለምሳሌ፡ ቀጠሮ መያዝ አልቻልሁም…"
+                  )}
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                 />
               </div>
-              <Button className="w-full" disabled={starting || !subject.trim()} onClick={startChat}>
-                {starting ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
+              {!user && (
+                <p className="text-xs text-amber-600">
+                  {t("You must be signed in to chat.", "ለመወያየት መግባት አለብዎ።")}
+                </p>
+              )}
+              <Button
+                className="w-full"
+                disabled={starting || !subject.trim() || !user}
+                onClick={startChat}
+              >
+                {starting && <Loader2 className="mr-2 h-3 w-3 animate-spin" />}
                 {t("Start chat", "ውይይት ጀምር")}
               </Button>
             </div>
@@ -215,18 +239,18 @@ export default function SupportChatWidget() {
             <>
               {isResolved && (
                 <div className="bg-emerald-50 px-3 py-2 text-xs text-emerald-700 text-center border-b">
-                  {t("This chat has been resolved by support.", "ይህ ውይይት በድጋፍ ቡድን ተፈትቷል።")}
+                  {t("This chat has been resolved.", "ይህ ውይይት ተፈትቷል።")}
                 </div>
               )}
               <div className="flex-1 overflow-y-auto p-3 space-y-2">
-                {/* Welcome message */}
                 <div className="flex justify-start">
                   <div className="rounded-xl rounded-tl-none bg-muted px-3 py-2 text-xs text-muted-foreground max-w-[80%]">
-                    {t("Hi! Support will reply shortly. Please describe your issue in detail.",
-                       "ሰላም! ድጋፍ ቡድን በቅርቡ ይመልሳሉ። ችግርዎን በዝርዝር ያስረዱ።")}
+                    {t(
+                      "Hi! Support will reply shortly.",
+                      "ሰላም! ድጋፍ ቡድን በቅርቡ ይመልሳሉ።"
+                    )}
                   </div>
                 </div>
-
                 {messages.map((m) => {
                   const isMine = m.sender_id === user?.id && !m.is_support;
                   return (
@@ -251,8 +275,6 @@ export default function SupportChatWidget() {
                 })}
                 <div ref={bottomRef} />
               </div>
-
-              {/* Input */}
               {!isResolved && (
                 <div className="border-t p-3 flex gap-2">
                   <Input
@@ -272,16 +294,16 @@ export default function SupportChatWidget() {
         </div>
       )}
 
-      {/* Floating button */}
+      {/* Floating button — always visible for non-staff */}
       <button
         onClick={step === "closed" ? openChat : () => setStep("closed")}
-        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 transition-colors"
+        className="relative flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 transition-all hover:scale-105"
       >
         {step === "closed" ? (
           <>
             <MessageCircle className="h-6 w-6" />
             {unread > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
+              <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white animate-bounce">
                 {unread}
               </span>
             )}

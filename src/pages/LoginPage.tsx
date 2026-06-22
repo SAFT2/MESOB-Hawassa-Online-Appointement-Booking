@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -50,6 +50,9 @@ async function getPostLoginDestination(userId: string): Promise<string> {
 export default function LoginPage() {
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
   const navigate = useNavigate();
+  // Read ?redirect=/book (or any path) from the URL
+  const search = useSearch({ strict: false }) as { redirect?: string };
+  const redirectTo = search?.redirect || null;
   const [tab, setTab] = useState<"signin" | "signup">("signin");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +82,7 @@ export default function LoginPage() {
       // Get the session to know the user id immediately
       const { data: sessionData } = await supabase.auth.getSession();
       const uid = sessionData.session?.user.id;
-      const dest = uid ? await getPostLoginDestination(uid) : "/";
+      const dest = redirectTo ?? (uid ? await getPostLoginDestination(uid) : "/");
       toast.success("Welcome back");
       navigate({ to: dest });
     } catch (err: any) {
@@ -113,8 +116,8 @@ export default function LoginPage() {
         national_id: parsed.data.national_id || undefined,
       });
       toast.success("Account created — you're signed in");
-      // New signups are always citizens — go to home
-      navigate({ to: "/" });
+      // New signups are citizens — go to redirect target or home
+      navigate({ to: redirectTo ?? "/" });
     } catch (err: any) {
       setError(err?.message || "Sign-up failed");
     } finally {
