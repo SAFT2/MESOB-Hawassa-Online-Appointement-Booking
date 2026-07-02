@@ -11,14 +11,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const signInSchema = z.object({
-  email: z.string().trim().email("Invalid email").max(255),
-  password: z.string().min(6, "Min 6 characters").max(72),
+  email: z.string().trim().email("Invalid email address").max(255),
+  password: z.string().min(6, "Password must be at least 6 characters").max(72),
 });
 
 const signUpSchema = z.object({
   full_name: z.string().trim().min(2, "Enter your full name").max(120),
-  email: z.string().trim().email("Invalid email").max(255),
-  password: z.string().min(8, "Min 8 characters").max(72),
+  email: z.string().trim().email("Invalid email address").max(255),
+  password: z.string().min(8, "Password must be at least 8 characters").max(72),
   phone: z.string().trim().max(40).optional().or(z.literal("")),
   national_id: z.string().trim().max(40).optional().or(z.literal("")),
 });
@@ -59,11 +59,11 @@ export default function LoginPage() {
   const [showSiPassword, setShowSiPassword] = useState(false);
   const [showSuPassword, setShowSuPassword] = useState(false);
 
-  // sign-in fields
+  // Sign-in fields
   const [siEmail, setSiEmail] = useState("");
   const [siPassword, setSiPassword] = useState("");
 
-  // sign-up fields
+  // Sign-up fields
   const [suName, setSuName] = useState("");
   const [suEmail, setSuEmail] = useState("");
   const [suPassword, setSuPassword] = useState("");
@@ -71,10 +71,24 @@ export default function LoginPage() {
   const [suPhone, setSuPhone] = useState("");
   const [suNid, setSuNid] = useState("");
 
-  // Dynamic Password Validation Checks
+  // Live Password Strengths
   const hasMinLength = suPassword.length >= 8;
   const hasNumber = /\d/.test(suPassword);
   const hasMatch = suPassword === suConfirmPassword && suConfirmPassword.length > 0;
+
+  // Smart Phone Formatting for Ethiopia (+251)
+  const handlePhoneChange = (value: string) => {
+    // Strip non-numeric values except the leading plus
+    let cleaned = value.replace(/[^\d+]/g, "");
+    
+    // Automatically force country code if user starts typing local 09/07 numbers
+    if (cleaned.startsWith("0")) {
+      cleaned = "+251" + cleaned.substring(1);
+    } else if (cleaned.length > 0 && !cleaned.startsWith("+")) {
+      cleaned = "+" + cleaned;
+    }
+    setSuPhone(cleaned);
+  };
 
   const onSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -128,7 +142,7 @@ export default function LoginPage() {
         phone: parsed.data.phone || undefined,
         national_id: parsed.data.national_id || undefined,
       });
-      toast.success("Account created — you're signed in");
+      toast.success("Account created successfully");
       navigate({ to: redirectTo ?? "/" });
     } catch (err: any) {
       setError(err?.message || "Sign-up failed");
@@ -223,7 +237,7 @@ export default function LoginPage() {
                     <Input
                       id="si-email"
                       type="email"
-                      autoComplete="email"
+                      autoComplete="username"
                       required
                       placeholder="name@example.com"
                       value={siEmail}
@@ -276,6 +290,7 @@ export default function LoginPage() {
                     <Input
                       id="su-name"
                       required
+                      autoComplete="name"
                       placeholder="Abebe Bekele"
                       value={suName}
                       onChange={(e) => setSuName(e.target.value)}
@@ -296,7 +311,6 @@ export default function LoginPage() {
                     />
                   </div>
                   
-                  {/* Password Input with Visibility toggle */}
                   <div className="space-y-1">
                     <Label htmlFor="su-password">Password</Label>
                     <div className="relative">
@@ -320,12 +334,12 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  {/* Confirm Password Input */}
                   <div className="space-y-1">
                     <Label htmlFor="su-confirm-password">Confirm Password</Label>
                     <Input
                       id="su-confirm-password"
                       type="password"
+                      autoComplete="new-password"
                       required
                       placeholder="Repeat password"
                       value={suConfirmPassword}
@@ -334,7 +348,6 @@ export default function LoginPage() {
                     />
                   </div>
 
-                  {/* Contextual Password Quality Checkers (Only show when typing) */}
                   {suPassword.length > 0 && (
                     <div className="rounded-lg bg-muted/40 p-3 space-y-1.5 text-xs border animate-in fade-in slide-in-from-top-1 duration-200">
                       <div className="flex items-center gap-2">
@@ -357,9 +370,11 @@ export default function LoginPage() {
                       <Label htmlFor="su-phone">Phone Number</Label>
                       <Input
                         id="su-phone"
+                        type="tel"
+                        autoComplete="tel"
                         placeholder="+251 9XX…"
                         value={suPhone}
-                        onChange={(e) => setSuPhone(e.target.value)}
+                        onChange={(e) => handlePhoneChange(e.target.value)}
                         className="bg-muted/30 focus-visible:ring-primary"
                       />
                     </div>
