@@ -346,9 +346,16 @@ export default function LoginPage() {
             </Button>
           </div>
 
-          <p className="text-center text-xs text-muted-foreground/80 leading-relaxed max-w-sm mx-auto">
-            Staff and administrators sign in here too — you'll be routed to your control center automatically.
-          </p>
+<p className="text-center text-xs text-muted-foreground/60 max-w-sm mx-auto px-4">
+  By continuing, you agree to our{" "}
+  <button onClick={() => alert('Terms of Service coming soon!')} className="underline underline-offset-4 hover:text-foreground transition-colors">
+    Terms of Service
+  </button>{" "}
+  and{" "}
+  <button onClick={() => alert('Privacy Policy coming soon!')} className="underline underline-offset-4 hover:text-foreground transition-colors">
+    Privacy Policy
+  </button>.
+</p>
         </div>
 
         {/* Small footer only visible on layout right-side wrapper */}
