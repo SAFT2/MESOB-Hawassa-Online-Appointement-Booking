@@ -1,0 +1,21 @@
+* [33mc1e4784[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m ui: use real logo and building photo on hero page
+* [33m06e5b24[m fix: require login before booking, redirect back after login, fix chat bubble
+* [33m5b5044c[m feat: add feedback popup, fix support chat bubble, fix admin feedback/support queries
+[31m|[m * [33m159adbd[m[33m ([m[1;31morigin/feature/support-chat[m[33m)[m Fix CitizenChatWidget TypeScript errors - apply supabaseClient type casting and add explicit type annotations
+[31m|[m * [33m6ee70d1[m Resolve merge conflict and add theme/language context providers
+[31m|[m [32m|[m * [33me418e3c[m[33m ([m[1;31morigin/feature/user-feedback[m[33m)[m Merge branch 'main' into feature/user-feedback
+[31m|[m [32m|[m[32m/[m[31m|[m 
+[31m|[m [32m|[m[31m/[m  
+[31m|[m[31m/[m[32m|[m   
+* [32m|[m [33mfcca45d[m Revert "Merge pull request #2 from SAFT2/feature/aboutPage"
+* [32m|[m   [33m7019d59[m Merge pull request #2 from SAFT2/feature/aboutPage
+[35m|[m[36m\[m [32m\[m  
+[35m|[m * [32m|[m [33me897869[m[33m ([m[1;31morigin/feature/aboutPage[m[33m)[m Update lockfile
+[35m|[m * [32m|[m [33m5da6100[m Add About page and styles
+* [36m|[m [32m|[m [33m8398c26[m little fixes
+[36m|[m[36m/[m [32m/[m  
+[36m|[m * [33m8abf5da[m feat: add citizen support chat with admin panel, unread badge, and setup docs
+[36m|[m * [33m53f9605[m feat: add user feedback & staff rating system
+[36m|[m[36m/[m  
+* [33m96996f0[m Add wrangler config for Cloudflare deploy
+* [33m2930048[m Fix booking bugs, add admin appointements page

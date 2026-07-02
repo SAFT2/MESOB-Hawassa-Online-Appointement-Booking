@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { Loader2, ArrowLeft, ShieldCheck } from "lucide-react";
+import { Loader2, ArrowLeft, ShieldCheck, AlertCircle } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,7 @@ const signUpSchema = z.object({
 
 function GoogleIcon() {
   return (
-    <svg viewBox="0 0 24 24" className="h-4 w-4" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0" aria-hidden="true">
       <path
         fill="#EA4335"
         d="M12 10.2v3.9h5.5c-.24 1.4-1.7 4.1-5.5 4.1-3.3 0-6-2.7-6-6.1s2.7-6.1 6-6.1c1.9 0 3.1.8 3.8 1.5l2.6-2.5C16.8 3.4 14.6 2.4 12 2.4 6.8 2.4 2.7 6.5 2.7 11.7s4.1 9.3 9.3 9.3c5.4 0 9-3.8 9-9.1 0-.6-.1-1.1-.2-1.7H12z"
@@ -34,7 +34,6 @@ function GoogleIcon() {
   );
 }
 
-/** After sign-in, check the user's role and redirect accordingly. */
 async function getPostLoginDestination(userId: string): Promise<string> {
   const { data } = await supabase
     .from("user_roles")
@@ -48,9 +47,8 @@ async function getPostLoginDestination(userId: string): Promise<string> {
 }
 
 export default function LoginPage() {
-  const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const { signIn, signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
-  // Read ?redirect=/book (or any path) from the URL
   const search = useSearch({ strict: false }) as { redirect?: string };
   const redirectTo = search?.redirect || null;
   const [tab, setTab] = useState<"signin" | "signup">("signin");
@@ -79,7 +77,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signIn(parsed.data.email, parsed.data.password);
-      // Get the session to know the user id immediately
       const { data: sessionData } = await supabase.auth.getSession();
       const uid = sessionData.session?.user.id;
       const dest = redirectTo ?? (uid ? await getPostLoginDestination(uid) : "/");
@@ -116,7 +113,6 @@ export default function LoginPage() {
         national_id: parsed.data.national_id || undefined,
       });
       toast.success("Account created — you're signed in");
-      // New signups are citizens — go to redirect target or home
       navigate({ to: redirectTo ?? "/" });
     } catch (err: any) {
       setError(err?.message || "Sign-up failed");
@@ -130,7 +126,6 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signInWithGoogle();
-      // OAuth redirect handles navigation automatically
     } catch (err: any) {
       setError(err?.message || "Google sign-in failed");
       setLoading(false);
@@ -138,182 +133,229 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <header className="border-b bg-card">
-        <div className="mx-auto flex max-w-md items-center justify-between px-4 py-4">
+    <div className="min-h-screen grid lg:grid-cols-2 bg-muted/20">
+      {/* Left Column: Premium Branding Sidebar (Hidden on Mobile) */}
+      <div className="hidden lg:flex flex-col justify-between bg-primary p-12 text-primary-foreground relative overflow-hidden pattern-grid-lg">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary to-primary-foreground/10 z-0" />
+        
+        <div className="relative z-10">
           <Link
             to="/"
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-2 text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back to home
+          </Link>
+        </div>
+
+        <div className="relative z-10 max-w-md space-y-4">
+          <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md">
+            <ShieldCheck className="h-6 w-6 text-white" />
+          </div>
+          <h1 className="text-4xl font-extrabold tracking-tight">MESOB Hawassa</h1>
+          <p className="text-lg text-primary-foreground/80 leading-relaxed">
+            Your gateway to securing reliable, quick, and verified digital appointments. Manage your bookings effortlessly from one central console.
+          </p>
+        </div>
+
+        <div className="relative z-10 text-xs text-primary-foreground/60">
+          &copy; {new Date().getFullYear()} MESOB Hawassa. All rights reserved.
+        </div>
+      </div>
+
+      {/* Right Column: Focus Form UI */}
+      <div className="flex flex-col justify-between p-4 sm:p-8 md:p-12 lg:p-16">
+        {/* Mobile Header Link */}
+        <div className="flex lg:hidden justify-start mb-6">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-4 w-4" /> Back home
           </Link>
         </div>
-      </header>
 
-      <main className="mx-auto flex max-w-md flex-col px-4 py-10">
-        <div className="mb-6 text-center">
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-            <ShieldCheck className="h-6 w-6" />
+        <div className="mx-auto w-full max-w-md my-auto space-y-6">
+          <div className="text-center lg:text-left space-y-1.5">
+            {/* Logo shown only on mobile header flow */}
+            <div className="lg:hidden mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <ShieldCheck className="h-6 w-6" />
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground lg:text-3xl">
+              {tab === "signin" ? "Welcome back" : "Create an account"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {tab === "signin" 
+                ? "Sign in to access your dashboard and appointments." 
+                : "Fill out the fields below to schedule your sessions."}
+            </p>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">MESOB Hawassa</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Sign in or create your account to book appointments.
+
+          <div className="rounded-2xl border bg-card p-6 shadow-xl shadow-muted/50 backdrop-blur-sm">
+            <Tabs
+              value={tab}
+              onValueChange={(v) => {
+                setTab(v as any);
+                setError(null);
+              }}
+              className="w-full"
+            >
+              <TabsList className="grid w-full grid-cols-2 p-1 bg-muted/60 rounded-xl">
+                <TabsTrigger value="signin" className="rounded-lg transition-all">Sign in</TabsTrigger>
+                <TabsTrigger value="signup" className="rounded-lg transition-all">Create account</TabsTrigger>
+              </TabsList>
+
+              {/* Sign In Form */}
+              <TabsContent value="signin" className="mt-5 space-y-4 outline-none">
+                <form onSubmit={onSignIn} className="space-y-4">
+                  <div className="space-y-1">
+                    <Label htmlFor="si-email">Email Address</Label>
+                    <Input
+                      id="si-email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="name@example.com"
+                      value={siEmail}
+                      onChange={(e) => setSiEmail(e.target.value)}
+                      className="bg-muted/30 focus-visible:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="si-password">Password</Label>
+                    </div>
+                    <Input
+                      id="si-password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      placeholder="••••••••"
+                      value={siPassword}
+                      onChange={(e) => setSiPassword(e.target.value)}
+                      className="bg-muted/30 focus-visible:ring-primary"
+                    />
+                  </div>
+
+                  {error && tab === "signin" && (
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive animate-in fade-in-50 duration-200">
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  <Button type="submit" className="w-full font-medium h-10 shadow-sm" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Sign in to Account
+                  </Button>
+                </form>
+              </TabsContent>
+
+              {/* Sign Up Form */}
+              <TabsContent value="signup" className="mt-5 space-y-4 outline-none">
+                <form onSubmit={onSignUp} className="space-y-3.5">
+                  <div className="space-y-1">
+                    <Label htmlFor="su-name">Full Name</Label>
+                    <Input
+                      id="su-name"
+                      required
+                      placeholder="Abebe Bekele"
+                      value={suName}
+                      onChange={(e) => setSuName(e.target.value)}
+                      className="bg-muted/30 focus-visible:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="su-email">Email Address</Label>
+                    <Input
+                      id="su-email"
+                      type="email"
+                      autoComplete="email"
+                      required
+                      placeholder="name@example.com"
+                      value={suEmail}
+                      onChange={(e) => setSuEmail(e.target.value)}
+                      className="bg-muted/30 focus-visible:ring-primary"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="su-password">Password</Label>
+                    <Input
+                      id="su-password"
+                      type="password"
+                      autoComplete="new-password"
+                      required
+                      placeholder="At least 8 characters"
+                      value={suPassword}
+                      onChange={(e) => setSuPassword(e.target.value)}
+                      className="bg-muted/30 focus-visible:ring-primary"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="su-phone">Phone Number</Label>
+                      <Input
+                        id="su-phone"
+                        placeholder="+251 9XX…"
+                        value={suPhone}
+                        onChange={(e) => setSuPhone(e.target.value)}
+                        className="bg-muted/30 focus-visible:ring-primary"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="su-nid">National ID</Label>
+                      <Input
+                        id="su-nid"
+                        placeholder="ID number"
+                        value={suNid}
+                        onChange={(e) => setSuNid(e.target.value)}
+                        className="bg-muted/30 focus-visible:ring-primary"
+                      />
+                    </div>
+                  </div>
+
+                  {error && tab === "signup" && (
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive animate-in fade-in-50 duration-200">
+                      <AlertCircle className="h-4 w-4 shrink-0" />
+                      <span>{error}</span>
+                    </div>
+                  )}
+
+                  <Button type="submit" className="w-full font-medium h-10 mt-2 shadow-sm" disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Register Account
+                  </Button>
+                </form>
+              </TabsContent>
+            </Tabs>
+
+            <div className="my-5 flex items-center gap-3 text-xs uppercase tracking-wider text-muted-foreground/70">
+              <div className="h-px flex-1 bg-border" />
+              <span>or continue with</span>
+              <div className="h-px flex-1 bg-border" />
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full bg-background hover:bg-muted/40 font-medium h-10 transition-colors"
+              disabled={loading}
+              onClick={onGoogle}
+            >
+              <GoogleIcon />
+              <span className="ml-2">Google</span>
+            </Button>
+          </div>
+
+          <p className="text-center text-xs text-muted-foreground/80 leading-relaxed max-w-sm mx-auto">
+            Staff and administrators sign in here too — you'll be routed to your control center automatically.
           </p>
         </div>
 
-        <div className="rounded-xl border bg-card p-6">
-          <Tabs
-            value={tab}
-            onValueChange={(v) => {
-              setTab(v as any);
-              setError(null);
-            }}
-          >
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign in</TabsTrigger>
-              <TabsTrigger value="signup">Create account</TabsTrigger>
-            </TabsList>
-
-            {/* Sign in */}
-            <TabsContent value="signin" className="mt-4">
-              <form onSubmit={onSignIn} className="space-y-4">
-                <div>
-                  <Label htmlFor="si-email">Email</Label>
-                  <Input
-                    id="si-email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={siEmail}
-                    onChange={(e) => setSiEmail(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="si-password">Password</Label>
-                  <Input
-                    id="si-password"
-                    type="password"
-                    autoComplete="current-password"
-                    required
-                    value={siPassword}
-                    onChange={(e) => setSiPassword(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                {error && tab === "signin" && (
-                  <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error}
-                  </div>
-                )}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Sign in
-                </Button>
-              </form>
-            </TabsContent>
-
-            {/* Sign up */}
-            <TabsContent value="signup" className="mt-4">
-              <form onSubmit={onSignUp} className="space-y-3">
-                <div>
-                  <Label htmlFor="su-name">Full name</Label>
-                  <Input
-                    id="su-name"
-                    required
-                    value={suName}
-                    onChange={(e) => setSuName(e.target.value)}
-                    className="mt-1"
-                    placeholder="e.g. Abebe Bekele"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="su-email">Email</Label>
-                  <Input
-                    id="su-email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    value={suEmail}
-                    onChange={(e) => setSuEmail(e.target.value)}
-                    className="mt-1"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="su-password">Password</Label>
-                  <Input
-                    id="su-password"
-                    type="password"
-                    autoComplete="new-password"
-                    required
-                    value={suPassword}
-                    onChange={(e) => setSuPassword(e.target.value)}
-                    className="mt-1"
-                    placeholder="At least 8 characters"
-                  />
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <Label htmlFor="su-phone">Phone</Label>
-                    <Input
-                      id="su-phone"
-                      value={suPhone}
-                      onChange={(e) => setSuPhone(e.target.value)}
-                      className="mt-1"
-                      placeholder="+251 9XX…"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="su-nid">National ID</Label>
-                    <Input
-                      id="su-nid"
-                      value={suNid}
-                      onChange={(e) => setSuNid(e.target.value)}
-                      className="mt-1"
-                      placeholder="FAN"
-                    />
-                  </div>
-                </div>
-                {error && tab === "signup" && (
-                  <div className="rounded-md border border-destructive/40 bg-destructive/10 p-3 text-sm text-destructive">
-                    {error}
-                  </div>
-                )}
-                <Button type="submit" className="w-full" disabled={loading}>
-                  {loading && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Create account
-                </Button>
-              </form>
-            </TabsContent>
-          </Tabs>
-
-          <div className="my-4 flex items-center gap-3 text-xs uppercase tracking-wide text-muted-foreground">
-            <div className="h-px flex-1 bg-border" />
-            or
-            <div className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            disabled={loading}
-            onClick={onGoogle}
-          >
-            <GoogleIcon />
-            <span className="ml-2">Continue with Google</span>
-          </Button>
+        {/* Small footer only visible on layout right-side wrapper */}
+        <div className="text-center text-xs text-muted-foreground/50 mt-8 lg:hidden">
+          &copy; {new Date().getFullYear()} MESOB Hawassa.
         </div>
-
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Staff and administrators sign in here too — you'll be redirected to
-          your console automatically.
-        </p>
-      </main>
+      </div>
     </div>
   );
 }
