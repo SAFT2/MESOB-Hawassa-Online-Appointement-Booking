@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { Loader2, ArrowLeft, ShieldCheck, AlertCircle } from "lucide-react";
+import { Loader2, ArrowLeft, ShieldCheck, AlertCircle, Check, X, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,10 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Password visibility controls
+  const [showSiPassword, setShowSiPassword] = useState(false);
+  const [showSuPassword, setShowSuPassword] = useState(false);
+
   // sign-in fields
   const [siEmail, setSiEmail] = useState("");
   const [siPassword, setSiPassword] = useState("");
@@ -63,8 +67,14 @@ export default function LoginPage() {
   const [suName, setSuName] = useState("");
   const [suEmail, setSuEmail] = useState("");
   const [suPassword, setSuPassword] = useState("");
+  const [suConfirmPassword, setSuConfirmPassword] = useState("");
   const [suPhone, setSuPhone] = useState("");
   const [suNid, setSuNid] = useState("");
+
+  // Dynamic Password Validation Checks
+  const hasMinLength = suPassword.length >= 8;
+  const hasNumber = /\d/.test(suPassword);
+  const hasMatch = suPassword === suConfirmPassword && suConfirmPassword.length > 0;
 
   const onSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,6 +102,12 @@ export default function LoginPage() {
   const onSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (suPassword !== suConfirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
     const parsed = signUpSchema.safeParse({
       full_name: suName,
       email: suEmail,
@@ -134,10 +150,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-muted/20">
-      {/* Left Column: Premium Branding Sidebar (Hidden on Mobile) */}
-      <div className="hidden lg:flex flex-col justify-between bg-primary p-12 text-primary-foreground relative overflow-hidden pattern-grid-lg">
+      {/* Left Column: Premium Branding Sidebar */}
+      <div className="hidden lg:flex flex-col justify-between bg-primary p-12 text-primary-foreground relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/90 via-primary to-primary-foreground/10 z-0" />
-        
         <div className="relative z-10">
           <Link
             to="/"
@@ -146,7 +161,6 @@ export default function LoginPage() {
             <ArrowLeft className="h-4 w-4" /> Back to home
           </Link>
         </div>
-
         <div className="relative z-10 max-w-md space-y-4">
           <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10 backdrop-blur-md">
             <ShieldCheck className="h-6 w-6 text-white" />
@@ -156,7 +170,6 @@ export default function LoginPage() {
             Your gateway to securing reliable, quick, and verified digital appointments. Manage your bookings effortlessly from one central console.
           </p>
         </div>
-
         <div className="relative z-10 text-xs text-primary-foreground/60">
           &copy; {new Date().getFullYear()} MESOB Hawassa. All rights reserved.
         </div>
@@ -164,7 +177,6 @@ export default function LoginPage() {
 
       {/* Right Column: Focus Form UI */}
       <div className="flex flex-col justify-between p-4 sm:p-8 md:p-12 lg:p-16">
-        {/* Mobile Header Link */}
         <div className="flex lg:hidden justify-start mb-6">
           <Link
             to="/"
@@ -176,7 +188,6 @@ export default function LoginPage() {
 
         <div className="mx-auto w-full max-w-md my-auto space-y-6">
           <div className="text-center lg:text-left space-y-1.5">
-            {/* Logo shown only on mobile header flow */}
             <div className="lg:hidden mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground">
               <ShieldCheck className="h-6 w-6" />
             </div>
@@ -221,19 +232,26 @@ export default function LoginPage() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="si-password">Password</Label>
+                    <Label htmlFor="si-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="si-password"
+                        type={showSiPassword ? "text" : "password"}
+                        autoComplete="current-password"
+                        required
+                        placeholder="••••••••"
+                        value={siPassword}
+                        onChange={(e) => setSiPassword(e.target.value)}
+                        className="bg-muted/30 focus-visible:ring-primary pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSiPassword(!showSiPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSiPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
-                    <Input
-                      id="si-password"
-                      type="password"
-                      autoComplete="current-password"
-                      required
-                      placeholder="••••••••"
-                      value={siPassword}
-                      onChange={(e) => setSiPassword(e.target.value)}
-                      className="bg-muted/30 focus-visible:ring-primary"
-                    />
                   </div>
 
                   {error && tab === "signin" && (
@@ -277,19 +295,63 @@ export default function LoginPage() {
                       className="bg-muted/30 focus-visible:ring-primary"
                     />
                   </div>
+                  
+                  {/* Password Input with Visibility toggle */}
                   <div className="space-y-1">
                     <Label htmlFor="su-password">Password</Label>
+                    <div className="relative">
+                      <Input
+                        id="su-password"
+                        type={showSuPassword ? "text" : "password"}
+                        autoComplete="new-password"
+                        required
+                        placeholder="Choose a strong password"
+                        value={suPassword}
+                        onChange={(e) => setSuPassword(e.target.value)}
+                        className="bg-muted/30 focus-visible:ring-primary pr-10"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowSuPassword(!showSuPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showSuPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Confirm Password Input */}
+                  <div className="space-y-1">
+                    <Label htmlFor="su-confirm-password">Confirm Password</Label>
                     <Input
-                      id="su-password"
+                      id="su-confirm-password"
                       type="password"
-                      autoComplete="new-password"
                       required
-                      placeholder="At least 8 characters"
-                      value={suPassword}
-                      onChange={(e) => setSuPassword(e.target.value)}
+                      placeholder="Repeat password"
+                      value={suConfirmPassword}
+                      onChange={(e) => setSuConfirmPassword(e.target.value)}
                       className="bg-muted/30 focus-visible:ring-primary"
                     />
                   </div>
+
+                  {/* Contextual Password Quality Checkers (Only show when typing) */}
+                  {suPassword.length > 0 && (
+                    <div className="rounded-lg bg-muted/40 p-3 space-y-1.5 text-xs border animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="flex items-center gap-2">
+                        {hasMinLength ? <Check className="h-3 w-3 text-green-600" /> : <X className="h-3 w-3 text-muted-foreground/60" />}
+                        <span className={hasMinLength ? "text-foreground font-medium" : "text-muted-foreground"}>At least 8 characters</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {hasNumber ? <Check className="h-3 w-3 text-green-600" /> : <X className="h-3 w-3 text-muted-foreground/60" />}
+                        <span className={hasNumber ? "text-foreground font-medium" : "text-muted-foreground"}>Contains at least one number</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {hasMatch ? <Check className="h-3 w-3 text-green-600" /> : <X className="h-3 w-3 text-muted-foreground/60" />}
+                        <span className={hasMatch ? "text-foreground font-medium" : "text-muted-foreground"}>Passwords match correctly</span>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="grid grid-cols-2 gap-3">
                     <div className="space-y-1">
                       <Label htmlFor="su-phone">Phone Number</Label>
@@ -314,7 +376,7 @@ export default function LoginPage() {
                   </div>
 
                   {error && tab === "signup" && (
-                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive animate-in fade-in-50 duration-200">
+                    <div className="flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">
                       <AlertCircle className="h-4 w-4 shrink-0" />
                       <span>{error}</span>
                     </div>
@@ -346,19 +408,14 @@ export default function LoginPage() {
             </Button>
           </div>
 
-<p className="text-center text-xs text-muted-foreground/60 max-w-sm mx-auto px-4">
-  By continuing, you agree to our{" "}
-  <button onClick={() => alert('Terms of Service coming soon!')} className="underline underline-offset-4 hover:text-foreground transition-colors">
-    Terms of Service
-  </button>{" "}
-  and{" "}
-  <button onClick={() => alert('Privacy Policy coming soon!')} className="underline underline-offset-4 hover:text-foreground transition-colors">
-    Privacy Policy
-  </button>.
-</p>
+          <p className="text-center text-xs text-muted-foreground/60 max-w-sm mx-auto px-4">
+            By continuing, you agree to our{" "}
+            <Link to="/terms" className="underline underline-offset-4 hover:text-foreground transition-colors">Terms of Service</Link>{" "}
+            and{" "}
+            <Link to="/privacy" className="underline underline-offset-4 hover:text-foreground transition-colors">Privacy Policy</Link>.
+          </p>
         </div>
 
-        {/* Small footer only visible on layout right-side wrapper */}
         <div className="text-center text-xs text-muted-foreground/50 mt-8 lg:hidden">
           &copy; {new Date().getFullYear()} MESOB Hawassa.
         </div>
